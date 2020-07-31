@@ -43,9 +43,32 @@ services:
       - "SERVICE_PORTS=4200"
       - "VIRTUAL_HOST_WEIGHT=5"
       - "VIRTUAL_HOST=/console/*"
+      - "MAVEN_OPTS=-Xmx8000m -XX:MaxPermSize=512m"
     networks:
       - proxy
-
+  #
+  # Node builder for rapid theme development
+  #
+  # node:
+  #   image: node:12
+  #   volumes:
+  #     - sakai_source:/home/node/app/source
+  #     - sakai_deploy:/home/node/app/deploy
+  #   entrypoint:
+  #     - bash /node_entry.sh
+  #   environment:
+  #     - SHELL=/bin/bash
+  #   deploy:
+  #     replicas: 1
+  #   user: "node"
+  #   working_dir: /home/node/app
+  #   networks:
+  #     - proxy
+  #   logging:
+  #     driver: "gelf"
+  #     options:
+  #       gelf-address: "udp://127.0.0.1:12201"
+  #       tag: "node-console"
   # 
   # MySQL service.
   #
@@ -77,7 +100,7 @@ services:
   sakai:
     image: tomcat:9.0.20-jre8
     environment:
-      - "CATALINA_OPTS_MEMORY=-Xms4000m -Xmx4000m"
+      - "CATALINA_OPTS_MEMORY=-Xms2000m -Xmx8000m"
       - "CATALINA_OPTS=-server -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled -XX:+UseCompressedOops -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=80 -XX:TargetSurvivorRatio=90 -Djava.awt.headless=true -Dsun.net.inetaddr.ttl=0 -Dsakai.component.shutdownonerror=true -Duser.language=en -Duser.country=US -Dsakai.home=/usr/local/sakai/properties -Dsakai.security=/usr/local/tomcat/sakai -Duser.timezone=US/Eastern -Dsun.net.client.defaultConnectTimeout=300000 -Dsun.net.client.defaultReadTimeout=1800000 -Dorg.apache.jasper.compiler.Parser.STRICT_QUOTE_ESCAPING=false -Dsun.lang.ClassLoader.allowArraySyntax=true -Dhttp.agent=Sakai -Djava.util.Arrays.useLegacyMergeSort=true"
       - "SERVICE_PORTS=8080"
       - "VIRTUAL_HOST=*"
