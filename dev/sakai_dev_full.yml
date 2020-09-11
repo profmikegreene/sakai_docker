@@ -69,6 +69,7 @@ services:
   #     options:
   #       gelf-address: "udp://127.0.0.1:12201"
   #       tag: "node-console"
+
   # 
   # MySQL service.
   #
@@ -135,7 +136,10 @@ services:
       options:
         gelf-address: "udp://127.0.0.1:12201"
         tag: "sakai-console"
-
+    # deploy:
+    #   restart_policy:
+    #     delay: 500s
+    #     window: 120s
   # 
   # Mongo Service (for graylog)
   #
