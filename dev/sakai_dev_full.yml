@@ -6,24 +6,24 @@ services:
   #
   # HAProxy to handle everything.
   # 
-  stackproxy:
-    image: dockercloud/haproxy:1.6.7
-    environment:
-      - "TIMEOUT=connect 5400000, client 5400000, server 5400000"
-      - "SKIP_FORWARDED_PROTO=true"
-    networks:
-      - proxy
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    ports:
-      - "8080:80"
-    deploy:
-      mode: global
-    logging:
-      driver: "gelf"
-      options:
-        gelf-address: "udp://127.0.0.1:12201"
-        tag: "stackproxy-console"
+  # stackproxy:
+  #   image: dockercloud/haproxy:1.6.7
+  #   environment:
+  #     - "TIMEOUT=connect 5400000, client 5400000, server 5400000"
+  #     - "SKIP_FORWARDED_PROTO=true"
+  #   networks:
+  #     - proxy
+  #   volumes:
+  #     - "/var/run/docker.sock:/var/run/docker.sock"
+  #   ports:
+  #     - "8080:80"
+  #   deploy:
+  #     mode: global
+  #   logging:
+  #     driver: "gelf"
+  #     options:
+  #       gelf-address: "udp://127.0.0.1:12201"
+  #       tag: "stackproxy-console"
 
   # 
   # Shell In A Box on a maven container.

@@ -2,6 +2,13 @@
 
 A suite of tools for developing Sakai using Docker Swarm.
 
+## profmikegreene changes
+
+* moved from haproxy to nginx-proxy
+* dns support on localhost
+* moved proxy out of sakai swarm into it's own swarm to support all localhost development
+
+
 ### Features
 Features of the files you will find here:
 
