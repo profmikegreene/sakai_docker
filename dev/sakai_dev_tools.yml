@@ -45,12 +45,40 @@ services:
     #   - "80:80"
     # deploy:
     #   mode: global
+  
+  # Node builder for rapid theme development
+  
+  # node:
+  #   image: node
+  #   volumes:
+  #     - sakai_source:/home/node/app/source/sakai/library
+  #     - sakai_deploy:/deploy
+  #     - "$PWD/lib/node_entry.sh:/node_entry.sh"
+  #     - "$PWD/CONFIG/maven/zshrc:/root/.zshrc"
+  #   entrypoint: bash /node_entry.sh
+  #   environment:
+  #     - "SERVICE_PORTS=3333"
+  #     - "VIRTUAL_PORT=3333"
+  #     # - "VIRTUAL_HOST_WEIGHT=5"
+  #     - VIRTUAL_HOST=sakai-node.localhost
+  #   deploy:
+  #     replicas: 1
+  #   user: "node"
+  #   working_dir: /home/node/app
+  #   networks:
+  #     - proxy
 
   # 
   # Shell In A Box on a maven container.
   #
   builder:
-    image: maven:3.6.1-jdk-8
+    # image: maven:3.6.3-jdk-8
+    # image: markhobson/maven-chrome:jdk-8
+    image: atlassianlabs/docker-node-jdk-chrome-firefox
+    # image: gitlab-registry.oit.duke.edu/mg287/docker/maven-node-chrome-ff:latest
+    # context: .
+    # dockerfile: builder.Dockerfile
+    # user: 1000
     volumes:
       - "$PWD/lib/maven_entry.sh:/maven_entry.sh"
       - "$PWD/CONFIG/maven/zshrc:/root/.zshrc"
@@ -59,13 +87,15 @@ services:
       - sakai_source:/source
       - sakai_deploy:/deploy
       - maven_cache:/root/.m2
+      - npm_cache:/root/.npm
+      # - "/var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket"
     entrypoint: bash /maven_entry.sh
     environment:
       - "SERVICE_PORTS=4200"
       - "VIRTUAL_PORT=4200"
       # - "VIRTUAL_HOST_WEIGHT=5"
       - VIRTUAL_HOST=sakai-console.localhost
-      - "MAVEN_OPTS=-Xmx8000m -XX:MaxPermSize=512m"
+      - "MAVEN_OPTS=-Xmx8000m"
     networks:
       - proxy
 
@@ -93,10 +123,11 @@ services:
   # Sakai Service
   #
   sakai:
-    image: tomcat:9.0.20-jre8
+    image: tomcat:9.0.46-jdk8
     environment:
       - "CATALINA_OPTS_MEMORY=-Xms2000m -Xmx8000m"
       - "CATALINA_OPTS=-server -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled -XX:+UseCompressedOops -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=80 -XX:TargetSurvivorRatio=90 -Djava.awt.headless=true -Dsun.net.inetaddr.ttl=0 -Dsakai.component.shutdownonerror=true -Duser.language=en -Duser.country=US -Dsakai.home=/usr/local/sakai/properties -Dsakai.security=/usr/local/tomcat/sakai -Duser.timezone=US/Eastern -Dsun.net.client.defaultConnectTimeout=300000 -Dsun.net.client.defaultReadTimeout=1800000 -Dorg.apache.jasper.compiler.Parser.STRICT_QUOTE_ESCAPING=false -Dsun.lang.ClassLoader.allowArraySyntax=true -Dhttp.agent=Sakai -Djava.util.Arrays.useLegacyMergeSort=true"
+      - "JAVA_OPTS=-Dspring.config.location=/usr/local/sakai/properties/sakai.properties -Dsakai.demo=true"
       - "SERVICE_PORTS=8080"
       - VIRTUAL_PORT=8080
       - VIRTUAL_HOST=sakai.localhost
@@ -110,7 +141,8 @@ services:
       - "$PWD/lib/tomcat_entry_nogl_nosearch.sh:/tomcat_entry.sh"
       - "$PWD/CONFIG/tomcat/server.xml:/usr/local/tomcat/conf/server.xml"
       - "$PWD/CONFIG/tomcat/context.xml:/usr/local/tomcat/conf/context.xml"
-      - "$PWD/CONFIG/sakai/sakai.nosearch.properties:/usr/local/sakai/es.properties"
+      - "$PWD/CONFIG/tomcat/web.xml:/usr/local/tomcat/conf/web.xml"
+      - "$PWD/CONFIG/sakai/sakai.properties:/usr/local/sakai/es.properties"
       - "sakai_deploy_components:/usr/local/tomcat/components"
       - "sakai_deploy_lib:/usr/local/tomcat/sakai-lib"
       - "sakai_deploy_webapps:/usr/local/tomcat/webapps"
@@ -196,6 +228,11 @@ volumes:
     driver_opts:
       type: none
       device: $PWD/DATA/maven
+      o: bind
+  npm_cache:
+    driver_opts:
+      type: none
+      device: $PWD/DATA/npm
       o: bind
   mysql_data:
     driver_opts:
