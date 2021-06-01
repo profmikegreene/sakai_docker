@@ -130,7 +130,7 @@ services:
       - "JAVA_OPTS=-Dspring.config.location=/usr/local/sakai/properties/sakai.properties -Dsakai.demo=true"
       - "SERVICE_PORTS=8080"
       - VIRTUAL_PORT=8080
-      - VIRTUAL_HOST=sakai.localhost
+      - VIRTUAL_HOST=21x-sakai.localhost
       - "HTTP_CHECK=GET / \"HTTP/1.1\\r\\nHost: ingress.proxy\""
     networks:
       mysql:
